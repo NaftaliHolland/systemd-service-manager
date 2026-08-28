@@ -1,26 +1,16 @@
 # Systemd Service Manager
 
-A simple interactive terminal UI (TUI) for managing a predefined list of `systemd` services.
+A simple interactive TUI for managing a predefined list of `systemd` services.
 
 The script allows you to view service status and perform common service-management operations without repeatedly typing `systemctl` commands.
 
 ## Features
 
-* View configured systemd services in a table.
-* Display both:
-
-  * **Enabled status** — whether the service starts automatically at boot.
-  * **Active status** — whether the service is currently running.
+* View configured systemd services.
 * Start and stop services.
-* Toggle a service between started and stopped states.
 * Restart services.
-* Enable services at boot.
-* Disable services at boot.
-* View detailed `systemctl status` output.
-* Navigate using arrow keys or `j`/`k`.
-* Automatically uses `sudo` when the script is not running as root.
-* Supports a custom configuration file.
-* Automatically creates a starter configuration if no configuration exists.
+* Enable services.
+* Disable services.
 
 ## Requirements
 
@@ -61,7 +51,7 @@ You can then run:
 service-manager
 ```
 
-Alternatively, if you don't want to install it system-wide, you could add an alias to your ~/.bashrc to save yourself a few milliseconds of typing:
+Alternatively, if you don't want to install it system-wide, you could add an alias to your `~/.bashrc` to save yourself a few milliseconds of typing:
 
 ```bash
 alias sm='/path/to/service-manager.sh'
@@ -103,16 +93,6 @@ For example:
 nginx.service
 postgresql.service
 redis.service
-```
-
-Blank lines and comments are ignored.
-
-You can also use comments after a service name:
-
-```text
-nginx.service       # Web server
-postgresql.service # Database
-redis.service       # Cache
 ```
 
 ### Default configuration
@@ -221,8 +201,6 @@ Service                   Enabled    Active
 [q]   Quit
 ```
 
-The currently selected service is highlighted.
-
 ## Keyboard Controls
 
 | Key       | Action                             |
@@ -239,70 +217,6 @@ The currently selected service is highlighted.
 | `q`       | Quit                               |
 
 Keys are case-insensitive where applicable.
-
-## Service Actions
-
-### Start / Stop
-
-Press `s` to toggle the selected service.
-
-If the service is currently active:
-
-```text
-systemctl stop <service>
-```
-
-If the service is not active:
-
-```text
-systemctl start <service>
-```
-
-For example:
-
-```text
-nginx.service → active
-```
-
-Pressing `s` stops it.
-
-Pressing `s` again starts it.
-
-### Restart
-
-Press `r` to restart the selected service:
-
-```bash
-systemctl restart <service>
-```
-
-### Enable
-
-Press `e` to enable the selected service:
-
-```bash
-systemctl enable <service>
-```
-
-Enabling a service configures it to start automatically according to its systemd configuration, commonly at boot.
-
-### Disable
-
-Press `d` to disable the selected service:
-
-```bash
-systemctl disable <service>
-```
-
-### View Status
-
-Press `Enter`, `Space`, or `v` to view the normal systemd status output:
-
-```bash
-systemctl --no-pager status <service>
-```
-
-This is useful when you need more information than the main table provides, such as recent log messages or why a service failed.
 
 ## Permissions
 
