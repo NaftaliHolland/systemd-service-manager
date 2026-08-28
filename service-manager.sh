@@ -28,6 +28,7 @@ setup_terminal() {
     ORIG_STTY=$(stty -g)
     stty -echo -icanon min 1 time 0
     tput civis
+    tput smcup
 }
 
 cleanup() {
@@ -35,7 +36,7 @@ cleanup() {
         stty "$ORIG_STTY" 2>/dev/null
     fi
     tput cnorm 2>/dev/null
-    clear
+    tput rmcup 2>/dev/null
 }
 
 run_privileged() {
@@ -229,13 +230,16 @@ color_for_active() {
 
 draw_services() {
     local selected="$1"
-    clear
-    echo "========================================"
-    echo "        SYSTEMD SERVICE MANAGER"
-    echo "========================================"
-    echo
-    printf "%-25s %-10s %-10s\n" "Service" "Enabled" "Active"
-    echo "------------------------------------------------"
+    tput cup 0 0
+    local frame
+
+    frame+="========================================"$'\n'
+    frame+="        SYSTEMD SERVICE MANAGER"$'\n'
+    frame+="========================================"$'\n'
+    frame+=$'\n'
+    frame+=$(printf "%-25s %-10s %-10s\n" "Service" "Enabled" "Active")
+    frame+=$'\n'
+    frame+="------------------------------------------------"$'\n'
 
     local i service enabled active enabled_colour active_colour prefix suffix
     for i in "${!SERVICES[@]}"; do
@@ -253,13 +257,13 @@ draw_services() {
             suffix=""
         fi
 
-        printf "%b%-25s %b%-10s%b %b%-10s%b%b\n" \
-            "$prefix" "$service" "$enabled_colour" "$enabled" "$RESET" "$active_colour" "$active" "$RESET" "$suffix"
+        frame+=$(printf "%b%-25s %b%-10s%b %b%-10s%b%b\n" \
+            "$prefix" "$service" "$enabled_colour" "$enabled" "$RESET" "$active_colour" "$active" "$RESET" "$suffix")
+        frame+=$'\n'
     done
 
-    echo
-
-    echo "
+    frame+=$'\n'
+    frame+="
 [↑/k]  Move up
 [↓/j]  Move down
 [Enter]  View status
@@ -269,6 +273,9 @@ draw_services() {
 [e]   Enable
 [d]   Disable
 [q]   Quit"
+    frame+=$'\033[J'
+
+    printf '%s\n' "$frame"
 }
 
 pause() {
@@ -334,28 +341,14 @@ show_service_status() {
     pause
 }
 
-execute_menu_action() {
-    local service="$1" idx="$2"
-    case "$idx" in
-        0) start_service "$service" ;;
-        1) stop_service "$service" ;;
-        2) restart_service "$service" ;;
-        3) enable_service "$service" ;;
-        4) disable_service "$service" ;;
-        5) show_service_status "$service" ;;
-        6) return 0 ;;
-    esac
-    return 1
-}
-
 handle_navigation() {
     local selected=0
     local key
 
     refresh_statuses
+    draw_services "$selected"
 
     while true; do
-        draw_services "$selected"
         key=$(read_key)
 
         case "$key" in
@@ -377,6 +370,7 @@ handle_navigation() {
                 ;;
         esac
         refresh_statuses
+        draw_services "$selected"
     done
 }
 
