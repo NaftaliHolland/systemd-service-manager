@@ -272,6 +272,7 @@ draw_services() {
 [r]   Restart
 [e]   Enable
 [d]   Disable
+[f]   Follow logs
 [q]   Quit"
     frame+=$'\033[J'
 
@@ -282,6 +283,7 @@ pause() {
     echo
     echo "Press any key to continue..."
     read_key >/dev/null
+    clear
 }
 
 start_service() {
@@ -297,7 +299,6 @@ stop_service() {
     clear
     echo "Stopping $svc ..."
     run_privileged $SUDO systemctl stop -- "$svc"
-    pause
 }
 
 toggle_service_status() {
@@ -341,6 +342,20 @@ show_service_status() {
     pause
 }
 
+follow_service() {
+    local svc="$1"
+    clear
+
+    echo "Following logs for $svc"
+    echo "Press Ctrl+C to go back."
+    echo
+
+    trap '' INT
+    journalctl -u "$svc" --no-pager -f
+    clear
+    trap 'exit 130' INT TERM
+}
+
 handle_navigation() {
     local selected=0
     local key
@@ -365,6 +380,7 @@ handle_navigation() {
             r|R) restart_service "${SERVICES[$selected]}" ;;
             e|E) enable_service "${SERVICES[$selected]}" ;;
             d|D) disable_service "${SERVICES[$selected]}" ;;
+            f|F) follow_service "${SERVICES[$selected]}" ;;
             q|Q)
                 break
                 ;;
