@@ -2,15 +2,15 @@
 
 A simple interactive TUI for managing a predefined list of `systemd` services.
 
-The script allows you to view service status and perform common service-management operations without repeatedly typing `systemctl` commands.
+The script allows you to view service status, perform common service-management operations and follow logs without repeatedly typing `systemctl` or `journalctl` commands.
 
 ## Features
 
 * View configured systemd services.
 * Start and stop services.
 * Restart services.
-* Enable services.
-* Disable services.
+* Enable/Disable services.
+* Follow logs
 
 ## Requirements
 
@@ -19,8 +19,8 @@ The script requires:
 * A Linux system using **systemd**
 * Bash
 * `systemctl`
+* `journalctl`
 * `sudo` if running the script as a non-root user
-* A terminal that supports ANSI escape sequences and `stty`
 
 Most modern systemd-based Linux distributions should work.
 
@@ -197,6 +197,7 @@ Service                   Enabled    Active
 [s]   Start / stop
 [r]   Restart
 [e]   Enable
+[f]   Follow logs 
 [d]   Disable
 [q]   Quit
 ```
@@ -213,6 +214,7 @@ Service                   Enabled    Active
 | `s`       | Start or stop the selected service |
 | `r`       | Restart the selected service       |
 | `e`       | Enable the selected service        |
+| `f`       | Follow logs with journalctl        |
 | `d`       | Disable the selected service       |
 | `q`       | Quit                               |
 
