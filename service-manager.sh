@@ -229,17 +229,29 @@ color_for_active() {
 }
 
 draw_services() {
+
     local selected="$1"
     tput cup 0 0
     local frame
+
+    local max_service_length=0
+    local service
+    for service in "${SERVICES[@]}"; do
+        if (( ${#service} > max_service_length )); then
+            max_service_length=${#service}
+        fi
+    done
+
+    local service_width=$((max_service_length + 2))
 
     frame+="========================================"$'\n'
     frame+="        SYSTEMD SERVICE MANAGER"$'\n'
     frame+="========================================"$'\n'
     frame+=$'\n'
-    frame+=$(printf "%-25s %-10s %-10s\n" "Service" "Enabled" "Active")
+    frame+=$(printf "  %-${service_width}s %-10s %-10s\n" \
+        "Service" "Enabled" "Active")
     frame+=$'\n'
-    frame+="------------------------------------------------"$'\n'
+    frame+="$(printf '%*s' $((service_width + 22)) '' | tr ' ' '-')" $'\n'
 
     local i service enabled active enabled_colour active_colour prefix suffix
     for i in "${!SERVICES[@]}"; do
@@ -256,8 +268,7 @@ draw_services() {
             prefix="  "
             suffix=""
         fi
-
-        frame+=$(printf "%b%-25s %b%-10s%b %b%-10s%b%b\n" \
+        frame+=$(printf "%b%-${service_width}s %b%-10s%b %b%-10s%b%b\n" \
             "$prefix" "$service" "$enabled_colour" "$enabled" "$RESET" "$active_colour" "$active" "$RESET" "$suffix")
         frame+=$'\n'
     done
