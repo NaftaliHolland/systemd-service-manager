@@ -244,14 +244,13 @@ draw_services() {
 
     local service_width=$((max_service_length + 2))
 
-    frame+="========================================"$'\n'
+    frame+="$(printf '%*s' $((service_width + 22)) '' | tr ' ' '=')"$'\n'
     frame+="        SYSTEMD SERVICE MANAGER"$'\n'
-    frame+="========================================"$'\n'
-    frame+=$'\n'
+    frame+="$(printf '%*s' $((service_width + 22)) '' | tr ' ' '=')"$'\n\n'
     frame+=$(printf "  %-${service_width}s %-10s %-10s\n" \
         "Service" "Enabled" "Active")
     frame+=$'\n'
-    frame+="$(printf '%*s' $((service_width + 22)) '' | tr ' ' '-')" $'\n'
+    frame+="$(printf '%*s' $((service_width + 22)) '' | tr ' ' '-')"$'\n'
 
     local i service enabled active enabled_colour active_colour prefix suffix
     for i in "${!SERVICES[@]}"; do
@@ -302,7 +301,11 @@ start_service() {
     clear
     echo "Starting $svc ..."
     run_privileged $SUDO systemctl start -- "$svc"
-    pause
+
+    exit_code=$?
+    if [ "$exit_code" -gt 0 ]; then
+        pause
+    fi
 }
 
 stop_service() {
@@ -310,6 +313,10 @@ stop_service() {
     clear
     echo "Stopping $svc ..."
     run_privileged $SUDO systemctl stop -- "$svc"
+    exit_code=$?
+    if [ "$exit_code" -gt 0 ]; then
+        pause
+    fi
 }
 
 toggle_service_status() {
@@ -327,7 +334,10 @@ restart_service() {
     clear
     echo "Restarting $svc ..."
     run_privileged $SUDO systemctl restart -- "$svc"
-    pause
+    exit_code=$?
+    if [ "$exit_code" -gt 0 ]; then
+        pause
+    fi
 }
 
 enable_service() {
@@ -335,7 +345,10 @@ enable_service() {
     clear
     echo "Enabling $svc ..."
     run_privileged $SUDO systemctl enable -- "$svc"
-    pause
+    exit_code=$?
+    if [ "$exit_code" -gt 0 ]; then
+        pause
+    fi
 }
 
 disable_service() {
@@ -343,7 +356,10 @@ disable_service() {
     clear
     echo "Disabling $svc ..."
     run_privileged $SUDO systemctl disable -- "$svc"
-    pause
+    exit_code=$?
+    if [ "$exit_code" -gt 0 ]; then
+        pause
+    fi
 }
 
 show_service_status() {
