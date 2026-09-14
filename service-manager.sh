@@ -361,7 +361,7 @@ follow_service() {
     echo "Press Ctrl+C to go back."
     echo
 
-    trap '' INT
+    trap ':' INT
     journalctl -u "$svc" --no-pager -f
     clear
     trap 'exit 130' INT TERM
